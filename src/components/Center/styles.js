@@ -1,6 +1,6 @@
 import {StyleSheet, Dimensions} from 'react-native';
 
-const width = Dimensions.get('window').width;
+const {width} = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   centerContainer: {
@@ -19,9 +19,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
+    paddingTop: 10
   },
   centerSquareInt: {
-    flex: 0.9,
+    flex: 0.95,
     // height: 335,
     width: 300,
     backgroundColor: 'black',
@@ -49,15 +50,15 @@ const styles = StyleSheet.create({
     bottom: 10,
   },
   containerPokemonsScreen: {
-    flexWrap: 'wrap',
-    flex: 1,
+    // flexWrap: 'wrap',
+    // height: height * 0.0838,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   containerPokemonNameId: {
     backgroundColor: '#eae0a8',
-    width: 200,
+    width: width * 0.5,
     flexDirection: 'row',
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
@@ -76,11 +77,13 @@ const styles = StyleSheet.create({
     width: 30,
     backgroundColor: '#c8333c',
     borderRadius: 30,
+    alignSelf: 'flex-end'
   },
   centerContainerAudioOut: {
     height: 35,
     width: 40,
     justifyContent: 'space-around',
+    alignSelf: 'flex-end'
   },
   centerAudioOut: {
     height: 2,

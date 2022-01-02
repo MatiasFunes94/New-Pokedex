@@ -5,22 +5,15 @@ const usePokemonPaginated = (deletelist) => {
 
   const [isLoading, setIsLoading] = useState(true)
   const [pokemonList, setPokemonList] = useState([])
-  const nextPageUrl = useRef('https://pokeapi.co/api/v2/pokemon?limit=10')
+  const pokemonsToFetch = 'https://pokeapi.co/api/v2/pokemon?limit=1200'
 
   const loadPokemons = async () => {
-    if (deletelist) {
-      setPokemonList([]);
-      nextPageUrl.current = 'https://pokeapi.co/api/v2/pokemon?limit=10';
-      setIsLoading(false);
-      return;
-    }
-    const resp = await pokemonApi.get(nextPageUrl.current);
-    nextPageUrl.current = resp.data.next;
+    const resp = await pokemonApi.get(pokemonsToFetch);
     mapPokemonList(resp.data.results)
   }
 
-  const mapPokemonList = (pokemonList) => {
-    const newPokemonList = pokemonList.map((pokemon) => {
+  const mapPokemonList = (pokemonsToMap) => {
+    const newPokemonList = pokemonsToMap.map((pokemon) => {
       const {
         name,
         url
@@ -30,13 +23,14 @@ const usePokemonPaginated = (deletelist) => {
       const picture = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
       return { id, name, picture }
     })
-    setPokemonList([...newPokemonList])
+    // setPokemonList(() => [{id: 'left-spacer-1'}, {id: 'left-spacer-2'}, {id: 'left-spacer-3'}, ...newPokemonList])
+    setPokemonList(() => [{id: 'left-spacer'}, ...newPokemonList])
     setIsLoading(false);
   }
   
   useEffect(() => {
     loadPokemons();
-  }, [deletelist])
+  }, [])
 
   return {
     isLoading,

@@ -1,11 +1,82 @@
-import React from 'react';
-import {View, Image, Text} from 'react-native';
+import React, {useRef} from 'react';
+import {View, Image, Text, Animated as RNAnimated, Dimensions} from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import styles from './styles';
 
-const Center = ({screenOnStyle, titleStyle, showPokemonsStyle, pokemonList}) => {
-  const uriPokedexTitle = 'https://cdn2.bulbagarden.net/upload/4/4b/Pok%C3%A9dex_logo.png';
+const { height } = Dimensions.get('window');
+
+const HEIGHT_POKEMON = height * 0.08363
+
+const Center = ({
+  screenOnStyle,
+  titleStyle,
+  pokemonList,
+  loadPokemons,
+  showPokemonsStyle,
+  flatlistRef,
+}) => {
+
+  const uriPokedexTitle =
+    'https://cdn2.bulbagarden.net/upload/4/4b/Pok%C3%A9dex_logo.png';
+
+    const scrollYAnimated = useRef(new RNAnimated.Value(0)).current;
+
+    const RenderPokemonItem = ({item, index}) => {
+      const inputRange = [
+        (index - 2) * HEIGHT_POKEMON,
+        (index - 1) * HEIGHT_POKEMON,
+        (index) * HEIGHT_POKEMON,
+      ];
+      const opacity = scrollYAnimated.interpolate({
+        inputRange,
+        outputRange: [0.4, 1, 0.4],
+        extrapolate: 'clamp',
+      })
+      const translateX = scrollYAnimated.interpolate({
+        inputRange,
+        outputRange: [ 20, -5, 20],
+        extrapolate: 'clamp',
+      })
+    
+      // if(item.id.includes('left-spacer')) {
+      //   return <View style={{height: HEIGHT_POKEMON }} />
+      // }
+
+      if(item.id === 'left-spacer') {
+        return <View style={{height: HEIGHT_POKEMON  }} />
+      }
+    
+      return (
+        <RNAnimated.View
+          key={item.id}
+          style={[styles.containerPokemonsScreen, {opacity, transform: [{translateX}]}]}>
+          <Image source={{uri: item.picture}} style={{height: 70, width: 70}} />
+          <View style={{marginLeft: 10}} />
+          <View style={styles.containerPokemonNameId}>
+            <Image
+              source={require('../../assets/pokeball.png')}
+              style={{height: 35, width: 35}}
+            />
+            <Text style={{color: '#000', fontSize: 18, marginLeft: 5}}>
+              {item.id}
+            </Text>
+            <Text
+              style={{
+                color: '#000',
+                fontSize: 18,
+                marginLeft: 5,
+                textTransform: 'uppercase',
+              }}
+              adjustsFontSizeToFit
+              numberOfLines={1}>
+              {item.name}
+            </Text>
+          </View>
+        </RNAnimated.View>
+      );
+    };
+
   return (
     <View style={styles.centerContainer}>
       <View style={styles.centerSquareExt}>
@@ -22,27 +93,27 @@ const Center = ({screenOnStyle, titleStyle, showPokemonsStyle, pokemonList}) => 
                 titleStyle,
               ]}
             />
-            <Animated.ScrollView style={[showPokemonsStyle]} showsVerticalScrollIndicator={false}>
-              {pokemonList.map(({name, picture, id}) => {
-                return (
-                  <Animated.View key={id} style={styles.containerPokemonsScreen}>
-                    <Image
-                      source={{uri: picture}}
-                      style={{height: 70, width: 70}}
-                    />
-                    <View style={styles.containerPokemonNameId}>
-                      <Image
-                        source={require('../../assets/pokeball.png')}
-                        style={{height: 35, width: 35}}
-                      />
-                      <Text style={{color: '#000', fontSize: 18, marginLeft: 5}}>{id}</Text>
-                      <Text style={{color: '#000', fontSize: 18, marginLeft: 5, textTransform: 'uppercase'}} adjustsFontSizeToFit numberOfLines={1} >{name}</Text>
-                    </View>
-                  </Animated.View>
-                );
-              })}
-            </Animated.ScrollView>
-          </Animated.View>
+              <RNAnimated.FlatList
+                ref={flatlistRef}
+                data={pokemonList}
+                keyExtractor={(item) => String(item.id)}
+                style={[{opacity: showPokemonsStyle}]}
+                snapToInterval={HEIGHT_POKEMON}
+                snapToEnd={'false'}
+                decelerationRate={'fast'}
+                onScroll={RNAnimated.event(
+                  [{nativeEvent: {contentOffset: {y: scrollYAnimated}}}],
+                  {useNativeDriver: true},
+                )}
+                scrollEventThrottle={16}
+                removeClippedSubviews
+                maxToRenderPerBatch={10}
+                onEndReached={loadPokemons}
+                onEndReachedThreshold={0.4}
+                showsVerticalScrollIndicator={false}
+                renderItem={RenderPokemonItem}
+              />
+            </Animated.View>
         </View>
         <View style={styles.containerButtonRedAudio}>
           <View style={styles.centerButtonRed} />
